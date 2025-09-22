@@ -1,0 +1,378 @@
+set ns [new Simulator]
+set nf [open prog1.nam w]
+$ns namtrace-all $nf
+set nd [open prog1.tr w]
+$ns trace-all $nd
+proc finish { } {
+global ns nf nd
+$ns flush-trace
+close $nf
+close $nd
+exec nam prog1.nam &
+exit 0
+}
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+$ns duplex-link $n0 $n1 1Mb 10ms DropTail
+$ns duplex-link $n1 $n2 512kb 10ms DropTail
+$ns queue-limit $n1 $n2 10
+set udp0 [new Agent/UDP]
+$ns attach-agent $n0 $udp0
+set cbr0 [new Application/Traffic/CBR]
+$cbr0 set packetSize_ 500
+$cbr0 set interval_ 0.005
+$cbr0 attach-agent $udp0
+set sink [new Agent/Null]
+$ns attach-agent $n2 $sink
+$ns connect $udp0 $sink
+$ns at 0.2 "$cbr0 start"
+$ns at 4.5 "$cbr0 stop"
+$ns at 5.0 "finish"
+$ns run
+Step2: Open text editor, type the below program and save with extention .awk (prog1.awk) 
+BEGIN {
+dcount = 0;
+rcount = 0;
+}
+{
+event = $1;
+if(event == "d")
+{
+dcount++;
+}
+if(event == "r")
+{
+rcount++;
+}
+}
+END {
+printf("The no.of packets dropped : %d\n ",dcount);
+printf("The no.of packets recieved : %d\n ",rcount);
+}
+Step3: Run the simulation program 
+[root@localhost~]# ns prog1.tcl
+(Here “ns” indicates network simulator. We get the topology shown in the snapshot.)
+Step 4:Now press the play button in the simulation window and the simulation will begins.
+Step 5:After simulation is completed run awk file to see the output , 
+[root@localhost~]# awk –f prog1.awk prog1.tr
+Number of packets droped = 16
+Step 6:To see the trace file contents open the file as , 
+[root@localhost~]# vi prog1.tr
+
+//P----------------------------- Program 2--------------------------------------
+
+set ns [new Simulator]
+set nf [open prog2.nam w]
+$ns namtrace-all $nf
+set nd [open prog2.tr w]
+$ns trace-all $nd
+proc finish {} {
+global ns nf nd
+$ns flush-trace
+close $nf
+close $nd
+exec nam prog2.nam &
+exit 0
+}
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+set n3 [$ns node]
+set n4 [$ns node]
+set n5 [$ns node]
+set n6 [$ns node]
+$ns duplex-link $n1 $n0 1Mb 10ms DropTail
+$ns duplex-link $n2 $n0 1Mb 10ms DropTail
+$ns duplex-link $n3 $n0 1Mb 10ms DropTail
+$ns duplex-link $n4 $n0 1Mb 10ms DropTail
+$ns duplex-link $n5 $n0 1Mb 10ms DropTail
+$ns duplex-link $n6 $n0 1Mb 10ms DropTail
+Agent/Ping instproc recv {from rtt} {
+$self instvar node_
+puts "node [$node_ id] recieved ping answer from \
+$from with round-trip-time $rtt ms."
+}
+set p1 [new Agent/Ping]
+set p2 [new Agent/Ping]
+set p3 [new Agent/Ping]
+set p4 [new Agent/Ping]
+set p5 [new Agent/Ping]
+set p6 [new Agent/Ping]
+$ns attach-agent $n1 $p1
+$ns attach-agent $n2 $p2
+$ns attach-agent $n3 $p3
+$ns attach-agent $n4 $p4
+$ns attach-agent $n5 $p5
+$ns attach-agent $n6 $p6
+$ns queue-limit $n0 $n4 3
+$ns queue-limit $n0 $n5 2
+$ns queue-limit $n0 $n6 2
+$ns connect $p1 $p4
+$ns connect $p2 $p5
+$ns connect $p3 $p6
+$ns at 0.2 "$p1 send"
+$ns at 0.4 "$p2 send"
+$ns at 0.6 "$p3 send"
+$ns at 1.0 "$p4 send"
+$ns at 1.2 "$p5 send"
+$ns at 1.4 "$p6 send"
+$ns at 2.0 "finish"
+$ns run
+Step2: Open text editor, type the below program and save with extention .awk (prog2.awk) 
+BEGIN {
+count=0;
+}
+{
+event=$1;
+if(event=="d")
+{
+count++;
+}
+}
+END {
+printf("No of packets dropped : %d\n",count);
+}
+Step3: Run the simulation program 
+[root@localhost~]# ns prog2.tcl
+(Here “ns” indicates network simulator. We get the topology shown in the snapshot.)
+Step 4:Now press the play button in the simulation window and the simulation will begins.
+Step 5:After simulation is completed run awk file to see the output , 
+[root@localhost~]# awk –f prog2.awk prog2.tr
+Step 6:To see the trace file contents open the file as , 
+[root@localhost~]# vi prog2.tr
+
+
+//----------------------------Program 3----------------------------------------//
+
+Step1: Open text editor, type the below program and save with extention .tcl (prog5.tcl) 
+set ns [new Simulator]
+set nf [open prog5.nam w]
+$ns namtrace-all $nf
+set nd [open prog5.tr w]
+$ns trace-all $nd
+$ns color 1 Blue
+$ns color 2 Red
+proc finish { } {
+global ns nf nd
+$ns flush-trace
+close $nf
+close $nd
+exec nam prog5.nam &
+exit 0
+}
+set n0 [$ns node]
+set n1 [$ns node]
+set n2 [$ns node]
+set n3 [$ns node]
+set n4 [$ns node]
+set n5 [$ns node]
+set n6 [$ns node]
+set n7 [$ns node]
+set n8 [$ns node]
+$n7 shape box
+$n7 color Blue
+$n8 shape hexagon
+$n8 color Red
+$ns duplex-link $n1 $n0 2Mb 10ms DropTail
+$ns duplex-link $n2 $n0 2Mb 10ms DropTail
+$ns duplex-link $n0 $n3 1Mb 20ms DropTail
+$ns make-lan "$n3 $n4 $n5 $n6 $n7 $n8" 512Kb 40ms LL Queue/DropTail Mac/802_3
+$ns duplex-link-op $n1 $n0 orient right-down
+$ns duplex-link-op $n2 $n0 orient right-up
+$ns duplex-link-op $n0 $n3 orient right
+$ns queue-limit $n0 $n3 20
+set tcp1 [new Agent/TCP/Vegas]
+$ns attach-agent $n1 $tcp1
+set sink1 [new Agent/TCPSink]
+$ns attach-agent $n7 $sink1
+$ns connect $tcp1 $sink1
+$tcp1 set class_ 1
+$tcp1 set packetsize_ 55
+set ftp1 [new Application/FTP]
+$ftp1 attach-agent $tcp1
+set tfile [open cwnd.tr w]
+$tcp1 attach $tfile
+$tcp1 trace cwnd_
+set tcp2 [new Agent/TCP/Reno]
+$ns attach-agent $n2 $tcp2
+set sink2 [new Agent/TCPSink]
+$ns attach-agent $n8 $sink2
+$ns connect $tcp2 $sink2
+$tcp2 set class_ 2
+$tcp2 set packetSize_ 55
+set ftp2 [new Application/FTP]
+$ftp2 attach-agent $tcp2
+set tfile2 [open cwnd2.tr w]
+$tcp2 attach $tfile2
+$tcp2 trace cwnd_
+$ns at 0.5 "$ftp1 start"
+$ns at 1.0 "$ftp2 start"
+$ns at 5.0 "$ftp2 stop"
+$ns at 5.0 "$ftp1 stop"
+$ns at 5.5 "finish"
+$ns run
+Step2: Open text editor, type the below program and save with extention .awk (prog5.awk) 
+BEGIN {
+}
+{
+if($6=="cwnd_") {
+printf("%f\t%f\n",$1,$7);
+}
+}
+END {
+}
+Step3: Run the simulation program 
+[root@localhost~]# ns prog5.tcl
+(Here “ns” indicates network simulator. We get the topology shown in the snapshot.)
+Step 4:Now press the play button in the simulation window and the simulation will begins.
+Step 5:After simulation is completed run awk file and generate the graph ,
+[root@localhost~]# awk –f prog5.awk cwnd.tr> a1
+[root@localhost~]# awk –f prog5.awk cwnd2.tr> a2
+[root@localhost~]#xgraph a1 a2
+Step 6:To see the trace file contents open the file as , 
+[root@localhost~]# vi prog5.tr
+
+
+//------------------Program 4-------------------------------------//
+
+import java.io.*;
+class crc_gen
+{
+ public static void main(String args[]) 
+ {
+ BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+ int[] data;
+ int[] div;
+ int[] divisor;
+ int[] rem;
+ int[] crc;
+ int data_bits, divisor_bits, tot_length;
+ System.out.println("Enter number of data bits : ");
+ data_bits=Integer.parseInt(br.readLine());
+ data=new int[data_bits];
+ System.out.println("Enter data bits : ");
+ for(int i=0; i<data_bits; i++)
+ data[i]=Integer.parseInt(br.readLine());
+divisor_bits = 17;
+divisor = new int[]{1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1};
+ tot_length=data_bits+divisor_bits-1;
+ div=new int[tot_length];
+ rem=new int[tot_length];
+ crc=new int[tot_length];
+ /*------------------ CRC GENERATION-----------------------*/ 
+ for(int i=0;i<data.length;i++)
+ div[i]=data[i];
+ System.out.print("Dividend (after appending 0's) are : ");
+ for(int i=0; i< div.length; i++)
+ System.out.print(div[i]); 
+ System.out.println();
+ for(int j=0; j<div.length; j++){
+ rem[j] = div[j];
+}
+ rem=divide(divisor, rem);
+ for(int i=0;i<div.length;i++) //append dividend and ramainder
+ {
+ crc[i]=(div[i]^rem[i]);
+ }
+ System.out.println();
+ System.out.println("CRC code : "); 
+ for(int i=0;i<crc.length;i++)
+ System.out.print(crc[i]);
+ /*-------------------ERROR DETECTION---------------------*/ 
+ System.out.println();
+ System.out.println("Enter CRC code of "+tot_length+" bits : ");
+ for(int i=0; i<crc.length; i++)
+ crc[i]=Integer.parseInt(br.readLine());
+ for(int j=0; j<crc.length; j++){
+ rem[j] = crc[j];
+ }
+ rem=divide(divisor, rem);
+ for(int i=0; i< rem.length; i++)
+ {
+ if(rem[i]!=0)
+ {
+ System.out.println("Error");
+ break;
+ }
+ if(i==rem.length-1)
+ System.out.println("No Error");
+ }
+ System.out.println("THANK YOU.... :)");
+ }
+ static int[] divide(int divisor[], int rem[])
+{
+ int cur=0;
+ while(true)
+ {
+ for(int i=0;i<divisor.length;i++)
+ rem[cur+i]=(rem[cur+i]^divisor[i]);
+ while(rem[cur]==0 && cur!=rem.length-1)
+ cur++;
+ if((rem.length-cur)<divisor.length)
+ break;
+ }
+ return rem;
+ }
+}
+
+
+//------------------------Program 5----------------------------------//
+
+Server Program
+import java.net.*; 
+import java.io.*;
+public class TCPServer 
+{
+ public static void main(String args[]) throws Exception
+{ 
+// establishing the connection with the server
+ ServerSocket sersock = new ServerSocket(4000);
+ System.out.println("Server ready for connection");
+ Socket sock = sersock.accept(); // binding with port: 4000
+ System.out.println("Connection is successful and wating for chatting");
+ // reading the file name from client
+InputStream istream = sock.getInputStream( );
+ BufferedReader fileRead =new BufferedReader(new InputStreamReader(istream));
+ String fname = fileRead.readLine( );
+ // reading file contents
+ BufferedReader contentRead = new BufferedReader(new FileReader(fname) );
+ // keeping output stream ready to send the contents
+ OutputStream ostream = sock.getOutputStream( );
+ PrintWriter pwrite = new PrintWriter(ostream, true);
+ String str;
+ while((str = contentRead.readLine()) != null) // reading line-by-line from file
+ {
+pwrite.println(str); // sending each line to client
+ }
+ sock.close(); sersock.close(); // closing network sockets
+ pwrite.close(); fileRead.close(); contentRead.close();
+ }
+}
+Client Program:
+import java.net.*;
+import java.io.*;
+public class TCPClient 
+{
+ public static void main( String args[ ] ) throws Exception
+ {
+ Socket sock = new Socket( "127.0.0.1", 4000);
+ // reading the file name from keyboard. Uses input stream
+ System.out.print("Enter the file name");
+ BufferedReader keyRead = new BufferedReader(new InputStreamReader(System.in));
+ String fname = keyRead.readLine();
+// sending the file name to server. Uses PrintWriter
+ OutputStream ostream = sock.getOutputStream( );
+ PrintWriter pwrite = new PrintWriter(ostream, true);
+ pwrite.println(fname);
+// receiving the contents from server. Uses input stream
+ InputStream istream = sock.getInputStream();
+ BufferedReader socketRead = new BufferedReader(new InputStreamReader(istream));
+ String str;
+ while((str = socketRead.readLine()) != null) // reading line-by-line 
+ { 
+ System.out.println(str); 
+ } 
+ pwrite.close(); socketRead.close(); keyRead.close();
+ }
+}
